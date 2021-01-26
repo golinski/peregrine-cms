@@ -56,6 +56,7 @@ export default {
   mixins: [VueFormGenerator.abstractField],
   data() {
     return {
+      valueWasAlreadyAbsent: null,
       IconLib,
       oldValue: null,
       delay: 10,
@@ -82,10 +83,14 @@ export default {
     value(val) {
       this.model[this.schema.model] = val
 
+      if (this.valueWasAlreadyAbsent === null) {
+        this.valueWasAlreadyAbsent = val === undefined || val === null
+      }
+
       let propsToRemove = this.model['_opDeleteProps'] || []
       if (isDefined(val)) {
         propsToRemove = propsToRemove.filter(x => x !== this.schema.model)
-      } else {
+      } else if (!this.valueWasAlreadyAbsent) {
         propsToRemove.push(this.schema.model)
       }
 
