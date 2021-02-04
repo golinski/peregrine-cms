@@ -14,6 +14,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,8 +135,15 @@ public class DefaultReplicationMapperService
     }
 
     @Override
-    public List<Resource> deactivate(final Resource source) throws ReplicationException {
-        return getDefaultReplicationService().deactivate(source);
+    public List<Resource> deactivate(final Resource resource) throws ReplicationException {
+        return delegate(Collections.singletonList(resource), (replication, resources) -> {
+            final List<Resource> result = new LinkedList<>();
+            for (final Resource r : resources) {
+                result.addAll(replication.deactivate(r));
+            }
+
+            return result;
+        });
     }
 
     @Override
@@ -215,10 +223,6 @@ public class DefaultReplicationMapperService
         }
 
         return result;
-    }
-
-    private Replication getDefaultReplicationService() {
-        return replications.get(defaultMapping.getServiceName());
     }
 
     public String storeFile(final Resource parent, final String name, final String content)
