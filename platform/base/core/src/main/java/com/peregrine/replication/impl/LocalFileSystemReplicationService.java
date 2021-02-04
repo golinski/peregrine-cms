@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.peregrine.commons.IOUtils.*;
@@ -57,10 +58,7 @@ import static com.peregrine.commons.TextUtils.replacePlaceholders;
 import static com.peregrine.commons.Chars._SCORE;
 import static com.peregrine.commons.ResourceUtils.jcrNameToFileName;
 import static com.peregrine.commons.util.PerConstants.SLASH;
-import static com.peregrine.commons.util.PerUtil.getJcrContent;
-import static com.peregrine.commons.util.PerUtil.intoList;
-import static com.peregrine.commons.util.PerUtil.isNotEmpty;
-import static com.peregrine.commons.util.PerUtil.splitIntoMap;
+import static com.peregrine.commons.util.PerUtil.*;
 import static com.peregrine.replication.ReplicationUtil.markAsActivated;
 import static com.peregrine.replication.ReplicationUtil.markAsDeactivated;
 import static java.util.Objects.isNull;
@@ -304,26 +302,26 @@ public class LocalFileSystemReplicationService
     void removeReplica(Resource resource, final List<Pattern> namePattern, final boolean isFolder) throws ReplicationException {
         final String resourceName = resource.getName();
         final File directory = new File(targetFolder, resource.getParent().getPath());
-        if(!directory.exists() || !directory.isDirectory()) {
+        if (!directory.exists() || !directory.isDirectory()) {
             throw new ReplicationException(String.format(FAILED_STORE_RENDERING_MISSING_PARENT_FOLDER, directory.getAbsolutePath()));
         }
 
         final File[] filesToBeDeletedFiles = directory.listFiles(file -> {
-                    final String name = file.getName();
-                    if (isFolder && file.isDirectory() && name.equals(resourceName)) {
-                        return true;
-                    }
-
-                    if (isNull(namePattern)) {
-                        return name.startsWith(resourceName);
-                    }
-
-                    for (final Pattern pattern : namePattern) {
-                        return pattern.matcher(name).matches() && file.getName().startsWith(resourceName);
-                    }
-
-                    return false;
+                final String name = file.getName();
+                if (isFolder && file.isDirectory() && name.equals(resourceName)) {
+                    return true;
                 }
+
+                final boolean nameStartsProperly = name.startsWith(resourceName);
+                if (isNull(namePattern) || !nameStartsProperly) {
+                    return nameStartsProperly;
+                }
+
+                return namePattern.stream()
+                        .map(p -> p.matcher(name))
+                        .map(Matcher::matches)
+                        .anyMatch(Boolean.TRUE::equals);
+            }
         );
         if (isNull(filesToBeDeletedFiles)) {
             return;
@@ -335,7 +333,7 @@ public class LocalFileSystemReplicationService
                 throw new ReplicationException(String.format(FAILED_TO_DELETE_FILE, toBeDeleted.getAbsolutePath()));
             }
 
-            markAsDeactivated(getJcrContent(resource));
+            markAsDeactivated(getJcrContentOrSelf(resource));
         }
     }
 

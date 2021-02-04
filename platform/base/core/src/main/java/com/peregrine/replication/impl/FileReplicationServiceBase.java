@@ -72,7 +72,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public abstract class FileReplicationServiceBase extends ReplicationServiceBase {
 
     private static final List<Pattern> NAME_PATTERNS = Collections.singletonList(
-            Pattern.compile(".*(\\.data\\.json|\\.html)")
+            Pattern.compile(".*(\\.(data|infinity)\\.json|\\.html)")
     );
     private static final ResourceChecker EXCLUDED_RESOURCES_RESOURCE_CHECKER = new ResourceChecker() {
 
@@ -159,7 +159,7 @@ public abstract class FileReplicationServiceBase extends ReplicationServiceBase 
         } else if(primaryType.startsWith("per:")) {
             removeReplica(startingResource, NAME_PATTERNS, false);
             answer.add(startingResource);
-        } else if(primaryType.equals(NT_FOLDER) || primaryType.equals(SLING_FOLDER) || primaryType.equals(SLING_ORDERED_FOLDER)) {
+        } else if(StringUtils.equalsAny(primaryType, NT_FOLDER, SLING_FOLDER, SLING_ORDERED_FOLDER)) {
             removeReplica(startingResource, null, true);
             answer.add(startingResource);
         }
