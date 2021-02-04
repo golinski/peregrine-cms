@@ -44,7 +44,7 @@ import static java.util.Objects.isNull;
 @Component(immediate = true)
 public final class LocalFileSystemSiteMapReplication implements SiteMapFilesCache.RefreshListener {
 
-    final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Reference
     private ReplicationsContainerWithDefault replications;
