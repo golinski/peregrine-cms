@@ -129,6 +129,10 @@ public class ReplicationUtil {
         addReplicationProps(resource, null);
     }
 
+    public static void markAsPending(final Resource source) {
+        addReplicationProps(source, "distribution pending");
+    }
+
     private static void addReplicationProps(final Resource resource, final String replicationRef) {
         addReplicationProps(resource, Calendar.getInstance(), replicationRef);
     }
