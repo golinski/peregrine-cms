@@ -59,7 +59,7 @@
         <bundle.plugin.version>2.5.4</bundle.plugin.version>
         <clean.plugin.version>3.0.0</clean.plugin.version>
         <installer.plugin.version>2.5.2</installer.plugin.version>
-        <surfire.plugin.version>2.20</surfire.plugin.version>
+        <surfire.plugin.version>2.22.2</surfire.plugin.version>
         <failsafe.plugin.version>2.22.2</failsafe.plugin.version>
         <deploy.plugin.version>2.8.2</deploy.plugin.version>
         <sling.plugin.version>2.1.10</sling.plugin.version>
